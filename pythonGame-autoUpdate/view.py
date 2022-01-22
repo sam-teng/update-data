@@ -1,4 +1,5 @@
 # ch16_8.py
+# -*- coding: UTF-8 -*-
 from tkinter import *
 from tkinter import messagebox
 def game_s_cli_2():
