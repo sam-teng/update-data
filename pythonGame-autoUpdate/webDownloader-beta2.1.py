@@ -58,8 +58,9 @@ def loading():                      # 模擬下載資料
 
         """
         for arg in pram.split(","):
-            if cheakFile(arg,"temp/update-data-main\pythonGame-autoUpdate/"+arg):
+            if not cheakFile(arg,"temp/update-data-main\pythonGame-autoUpdate/"+arg):
                 tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
+                
             else:
                 tkinter.messagebox.showinfo("showinfo", "完成")
                 quit()
