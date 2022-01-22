@@ -57,10 +57,18 @@ def loading():                      # 模擬下載資料
         view.py
 
         """
+        file_source = "temp/update-data-main/pythonGame-autoUpdate/"
+        file_destination = "./"
         for arg in pram.split(","):
-            if not cheakFile(arg,"temp/update-data-main\pythonGame-autoUpdate/"+arg):
+            if not cheakFile(arg,file_source+arg):
                 tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
+                #更新目前檔案
                 
+                 
+                get_files = os.listdir(file_source)
+                 
+                for g in get_files:
+                    os.replace(file_source + g, file_destination + g)
             else:
                 tkinter.messagebox.showinfo("showinfo", "完成")
                 quit()
