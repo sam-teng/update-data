@@ -95,7 +95,7 @@ def downloads():
         
         if yt_url == "":
           yt_url = "https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py"
-        if yt_url is not "http":
+        if not "http" in yt_url:
             continue
         try:
           url = yt_url
