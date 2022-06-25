@@ -1,5 +1,4 @@
-#https://www.itread01.com/article/1510122002.html
-# -*- coding: UTF-8 -*-
+#def import_lib():
 import socket
 import os
 import random
@@ -11,7 +10,14 @@ import tkinter.messagebox as msg # messagebox要另行匯入，否則會出錯�
 window = tk.Tk()
 window.title("socket-game-client_2P")
 #window.iconbitmap('unicorn.ico') # 更改左上角的icon圖示
+
+file = "client-answerdatalog.csv"
+files = "highest.txt"
+
+ip_log = "ip-list"
+
 def setup_game():
+    
     low, high = 1, 100
     #ans = random.randint(low, high)
     ans = ans_entry.get()
@@ -24,16 +30,28 @@ def setup_game():
 
     ip_check = 0
 
-    file = "client-answerdatalog.csv"
-    files = "highest.txt"
+def cheak_file(filepath,command=""):
+    if command != "":
+        exec(lambda:command)
+    return os.path.exists(filepath)
+def save_file(filepath,data):
+    with open(filepath, 'w') as f:
+        f.write(data)
+    f.close()
+    return
+def read_file(filepath):
+    with open(filepath, 'r') as f:
+        data = f.read()
+    f.close()
+    return data
 
-    ip_log = "ip-list"
-    if not os.path.exists(ip_log):
+def client():
+    
+    if not cheak_file(ip_log):
         last_ip = ""
     else:
-        with open(ip_log, 'r') as f:
-            last_ip = f.read()
-        f.close()
+        last_ip = read_file(ip_log)
+        
         """
         f = open(ip_log)
         last_ip = f.read()
@@ -42,16 +60,16 @@ def setup_game():
         ip_check = 1
         
 
-    if not os.path.exists(files):
+    if not cheak_file(files):
         last = float("inf")
     else:
-        with open(files, 'r') as f:
-            last = f.read()
-            if not type(last) == int:
-                last = float("inf")
-            else:
-                last = int(last)
-        f.close()
+        last = read_file(files)
+            
+        if not type(last) == int:
+            last = float("inf")
+        else:
+            last = int(last)
+        
         """
         f = open(files)
         last = int(f.read())
@@ -89,9 +107,8 @@ def setup_game():
         def no():
         #elif q == "n" or q == "N" or q == "no" or q == "No":
             ip = ip_entry.get()
-            with open(ip_log, 'w') as f:
-                f.write(ip)
-            f.close()
+            save_file(ip_log,ip)
+            
             """
             f = open(ip_log,"w")
             f.write(ip)
@@ -105,9 +122,8 @@ def setup_game():
         qn_btn.pack()
     else:
         ip = ip_entry.get()
-        with open(ip_log, 'w') as f:
-            f.write(ip)
-        f.close()
+        save_file(ip_log,ip)
+        
         """
         f = open(ip_log,"w")
         f.write(ip)
@@ -141,6 +157,7 @@ def setup_game():
         client.close()
         #time.sleep(1)
         break
+
     #game begin
     server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     server.bind(('0.0.0.0', rdn))
@@ -181,133 +198,147 @@ def setup_game():
         if bool(res_boolen):
             break
     i = 0
-    def begin():
-        range_label = tk.Label(bottom_frame)
-        range_label.pack(side=tk.LEFT)
-        range_entry = tk.Entry(bottom_frame)
-        range_entry.pack(side=tk.RIGHT)
+    calculate_btn.configure(text="開始遊戲", command=begin)
+def begin():
+    range_label = tk.Label(bottom_frame)
+    range_label.pack(side=tk.LEFT)
+    range_entry = tk.Entry(bottom_frame)
+    range_entry.pack(side=tk.RIGHT)
 
-        while bool(res_boolen):# == 1:
-            enter_label.configure(text="遊戲開始")
-            print("start")
-            #label.begin
-            msg = '1'
-            conn.send(msg.encode('utf-8'))
-            time.sleep(0.5)
+    while bool(res_boolen):# == 1:
+        enter_label.configure(text="遊戲開始")
+        print("start")
+        #label.begin
+        msg = '1'
+        conn.send(msg.encode('utf-8'))
+        time.sleep(0.5)
+        """
+        try:
+        """
+        data_server = conn.recv(1024)
+        res_msg = data_server.decode()
+        print(res_msg)
+        if res_msg == "You lose":
+            enter_label.configure(text="Game over")
+            print("You lose")
+            i = 1
+            break
+        elif res_msg == " ":
+            pass#continue
+        """
+        except:
+            continue
             """
-            try:
-            """
-            data_server = conn.recv(1024)
-            res_msg = data_server.decode()
-            print(res_msg)
-            if res_msg == "You lose":
-                enter_label.configure(text="Game over")
-                print("You lose")
-                i = 1
-                break
-            elif res_msg == " ":
-                pass#continue
-            """
-            except:
-                continue
-                """
-            ranges = str(low) + "~" + str(high) + ":"
-            range_label.configure(text=ranges)
-            #guest = int(input(ranges))
-            def yes():
-            #if q == "y" or q == "Y" or q == "yes" or q == "Yes":
-                guest = range_entry.get()
-            '''
-            def no():
-            #elif q == "n" or q == "N" or q == "no" or q == "No":
-            '''    
-            qy_btn = tk.Button(bottom_frame, text='確定', command=yes)
-            qy_btn.pack()
+        ranges = str(low) + "~" + str(high) + ":"
+        range_label.configure(text=ranges)
+        #guest = int(input(ranges))
+        def yes():
+        #if q == "y" or q == "Y" or q == "yes" or q == "Yes":
+            guest = range_entry.get()
+        '''
+        def no():
+        #elif q == "n" or q == "N" or q == "no" or q == "No":
+        '''    
+        qy_btn = tk.Button(bottom_frame, text='確定', command=yes)
+        qy_btn.pack()
 
-            if guest <= high:
-                if guest >= low:
+        if guest <= high:
+            if guest >= low:
+                
+                if guest < ans:
+                    low = guest
+                    if (high - 1) - (low - 1) == 2:
+                        enter_label.configure(text="錯誤,公布答案"+str(ans)+","+str(count+1) + "次")
+                        print("錯誤,公布答案",str(ans))
+                        print(str(count+1) + "次")
+                        break
+                    else:
+                        enter_label.configure(text="不正確,太小了")
+                        print("不正確,太小了")
+                    #goto.begin
+                    #ranges = str(low) + "~" + str(high) + ":"
+                    #conn.send(ranges.encode('utf-8'))
+                    #conn.close()
+                    """
+                    msg = '1'
+                    conn.send(msg.encode('utf-8'))
+                    """
+                elif guest > ans:
+                    high = guest
+                    if high - low == 2:
+                        enter_label.configure(text="錯誤,公布答案"+str(ans)+","+str(count+1) + "次")
+                        print("錯誤,公布答案:",str(ans))
+                        print(str(count+1) + "次")
+                        break
+                    else:
+                        enter_label.configure(text="不正確,太大了")
+                        print("不正確,太大了")
+                    #goto.begin
+                    #ranges = str(low) + "~" + str(high) + ":"
+                    #conn.send(ranges.encode('utf-8'))
+                    #conn.close()
+                    """
+                    msg = '1'
+                    conn.send(msg.encode('utf-8'))
+                    """
+                else:
+                    enter_label.configure(text="正確,"+str(count+1) + "次")
+                    print("正確")
+                    print(str(count+1) + "次")
                     
-                    if guest < ans:
-                        low = guest
-                        if (high - 1) - (low - 1) == 2:
-                            enter_label.configure(text="錯誤,公布答案"+str(ans)+","+str(count+1) + "次")
-                            print("錯誤,公布答案",str(ans))
-                            print(str(count+1) + "次")
-                            break
-                        else:
-                            enter_label.configure(text="不正確,太小了")
-                            print("不正確,太小了")
-                        #goto.begin
-                        #ranges = str(low) + "~" + str(high) + ":"
-                        #conn.send(ranges.encode('utf-8'))
-                        #conn.close()
+                    if count+1 == last:
+                        enter_label.configure(text="加油,繼續保持")
+                        print("加油,繼續保持")
+                    elif count+1 < last:
+                        enter_label.configure(text="有進步")
+                        print("有進步")
+                        save_file(files,str(count+1))
                         """
-                        msg = '1'
-                        conn.send(msg.encode('utf-8'))
+                        with open(files, 'w') as f:
+                            f.write(str(count+1))
+                        f.close()
                         """
-                    elif guest > ans:
-                        high = guest
-                        if high - low == 2:
-                            enter_label.configure(text="錯誤,公布答案"+str(ans)+","+str(count+1) + "次")
-                            print("錯誤,公布答案:",str(ans))
-                            print(str(count+1) + "次")
-                            break
-                        else:
-                            enter_label.configure(text="不正確,太大了")
-                            print("不正確,太大了")
-                        #goto.begin
-                        #ranges = str(low) + "~" + str(high) + ":"
-                        #conn.send(ranges.encode('utf-8'))
-                        #conn.close()
                         """
-                        msg = '1'
-                        conn.send(msg.encode('utf-8'))
+                        f = open(files, "w")
+                        f.write(str(count+1))
+                        f.close()
                         """
                     else:
-                        enter_label.configure(text="正確,"+str(count+1) + "次")
-                        print("正確")
-                        print(str(count+1) + "次")
-                        
-                        if count+1 == last:
-                            enter_label.configure(text="加油,繼續保持")
-                            print("加油,繼續保持")
-                        elif count+1 < last:
-                            enter_label.configure(text="有進步")
-                            print("有進步")
-                            with open(files, 'w') as f:
-                                f.write(str(count+1))
-                            f.close()
-                            """
-                            f = open(files, "w")
-                            f.write(str(count+1))
-                            f.close()
-                            """
-                        else:
-                            enter_label.configure(text="再加油,快破紀錄了")
-                            print("再加油,快破紀錄了")
+                        enter_label.configure(text="再加油,快破紀錄了")
+                        print("再加油,快破紀錄了")
 
-                        second = (second + count) + 1
-                        enter_label.configure(text="目前最高分(猜最少次):" + str(second))
-                        print("目前最高分(猜最少次):" + str(second))
-                        break
-                        
-                else:
-                    enter_label.configure(text="請輸入正確的數字")
-                    print("請輸入正確的數字")
-                    #continue
-                    #goto.begin
+                    second = (second + count) + 1
+                    enter_label.configure(text="目前最高分(猜最少次):" + str(second))
+                    print("目前最高分(猜最少次):" + str(second))
+                    break
+                    
             else:
                 enter_label.configure(text="請輸入正確的數字")
                 print("請輸入正確的數字")
-                continue
+                #continue
                 #goto.begin
-            count = count + 1
-            msg = '1'
-            conn.send(msg.encode('utf-8'))
-            time.sleep(1.5)
-            conn.send(" ".encode('utf-8'))
-    calculate_btn.configure(text="開始遊戲", command=begin)
+        else:
+            enter_label.configure(text="請輸入正確的數字")
+            print("請輸入正確的數字")
+            continue
+            #goto.begin
+        count = count + 1
+        msg = '1'
+        conn.send(msg.encode('utf-8'))
+        time.sleep(1.5)
+        conn.send(" ".encode('utf-8'))
+    
+def __init__():
+    #import_lib()
+    pass
 
+def __main__():
+    
+    setup_game()
+    client()
+    #begin_game()
+#__init__()
+   
 top_frame = tk.Frame(window)
 
 # 將元件分為 top/bottom 兩群並加入主視窗
@@ -320,6 +351,8 @@ left_frame = tk.Frame(window)
 left_frame.pack(side=tk.LEFT)
 # 建立事件處理函式（event handler），透過元件 command 參數存取
 def quitwindow():
+    import tkinter as tk
+    window = tk.Tk()
     window.destroy()
     exit()
 
@@ -355,13 +388,13 @@ result_label.pack()
 enter_label = tk.Label(window)
 enter_label.pack()
 
-calculate_btn = tk.Button(window, text='馬上開始連線', command=setup_game)
+calculate_btn = tk.Button(window, text='馬上開始連線', command=__main__)
 calculate_btn.pack()
 
 # 以下為 bottom 群組
 # bottom_button 綁定 echo_hello 事件處理，點擊該按鈕會印出 hello world :)
 
-bottom_button = tk.Button(bottom_frame, text='Black', fg='black', command=quitwindow)
+bottom_button = tk.Button(bottom_frame, text='離開', fg='black', command=quitwindow)
 # 讓系統自動擺放元件（靠下方）
 bottom_button.pack(side=tk.BOTTOM)
 

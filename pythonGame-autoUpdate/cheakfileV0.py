@@ -3,9 +3,7 @@ class cheakFile:
     correspond_file_path = None
     from_f = ""
     correspond_f = ""
-    def __init__(self,from_file_path,correspond_file_path):
-        """
-        """
+    def setup(self,from_file_path,correspond_file_path):
         if from_file_path is str:
             with open(from_file_path,"rb") as Ff:
                 self.from_f = Ff.read()
@@ -16,11 +14,25 @@ class cheakFile:
                 self.correspond_f = Cf.read()
         else:
             return None
+    def __init__(self):
+        """
+        """
+        self.setup()
     def cheakFile(self):
         if self.from_f == self.correspond_f:
             return True
         else:
             return False
+    def repeat(self,count,from_file_path,correspond_file_path):
+        if not i == 0 or not int:
+            pass
+        else:
+            if from_file_path is list and correspond_file_path is list:
+                for i in range(count):
+                    for Cf in from_file_path:
+                        for Ff in correspond_file_path:
+                            setup(self,from_file_path,correspond_file_path)
+                            cheakFile(self)
 from tkinter import *
 from tkinter.ttk import *
 import tkinter.messagebox

@@ -320,6 +320,8 @@ left_frame = tk.Frame(window)
 left_frame.pack(side=tk.LEFT)
 # 建立事件處理函式（event handler），透過元件 command 參數存取
 def quitwindow():
+    import tkinter as tk
+    window = tk.Tk()
     window.destroy()
     exit()
 
@@ -361,7 +363,7 @@ calculate_btn.pack()
 # 以下為 bottom 群組
 # bottom_button 綁定 echo_hello 事件處理，點擊該按鈕會印出 hello world :)
 
-bottom_button = tk.Button(bottom_frame, text='Black', fg='black', command=quitwindow)
+bottom_button = tk.Button(bottom_frame, text='離開', fg='black', command=quitwindow)
 # 讓系統自動擺放元件（靠下方）
 bottom_button.pack(side=tk.BOTTOM)
 

@@ -320,8 +320,7 @@ left_frame = tk.Frame(window)
 left_frame.pack(side=tk.LEFT)
 # 建立事件處理函式（event handler），透過元件 command 參數存取
 def quitwindow():
-    window.destroy()
-    exit()
+    quit()
 
 # 以下為 top 群組
 '''

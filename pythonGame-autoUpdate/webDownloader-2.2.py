@@ -1,9 +1,91 @@
-# ch16_8.py
-# -*- coding: UTF-8 -*-
-from tkinter import *
-from tkinter import messagebox
 import os
-basePath = "./"
+import time
+import wget,sys
+import urllib #urllib2.urlopen 
+
+import requests
+
+import threading
+
+from tkinter import *
+from tkinter.ttk import *
+import tkinter.messagebox
+
+from cheakfile import cheakFile
+
+root = Tk()
+root.title("cheakUpdate")
+bytes = 0                           # 設定初值
+maxbytes = 10000                    # 假設下載檔案大小 
+count = 0
+
+fn = None
+data = """
+https://github.com/sam-teng/update-data/archive/refs/heads/main.zip,
+
+"""
+""",
+https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py,
+https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-server_2P-GUIv2.py,
+https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py
+
+"""
+
+def _exec():
+    with open("updatefile.py","rb") as fr:
+        fr = fr.read()
+        print(fr)
+        exec(fr)
+
+pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
+pb.pack(padx=10,pady=10)
+pb["value"] = 0                     # Prograssbar初始值
+pb["maximum"] = maxbytes        # Prograddbar最大值
+
+def load():                         # 啟動Prograssbar
+    #pb["value"] = 0                 # Prograssbar初始值
+    #pb["maximum"] = maxbytes        # Prograddbar最大值
+    loading()
+
+def loading():                      # 模擬下載資料
+    global bytes
+    bytes += 200//len(data.split(","))   # 模擬每次下在500bytes
+    pb["value"] = bytes             # 設定指針
+    if bytes < maxbytes:
+        pb.after(50,loading)        # 經過0.05秒繼續執行loading
+    else:
+        global count
+        pram = """
+        game_socket-client_2P-GUIv2.py,
+        game_socket-server_2P-GUIv2.py,
+        view.py
+
+        """
+        file_source = "temp/update-data-main/pythonGame-autoUpdate/"
+        file_destination = "./"
+        i = 1
+        for arg in pram.split(","):
+            if not cheakFile(arg,file_source+arg):
+                if i == len(pram.split(",")):
+                    tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
+                #更新目前檔案
+                
+                 
+                get_files = os.listdir(file_source)
+                 
+                for g in get_files:
+                    os.replace(file_source + g, file_destination + g)
+            else:
+                if i == len(pram.split(",")):
+                    tkinter.messagebox.showinfo("showinfo", "完成")
+                    count += 1
+                    root.destroy()
+                    exit()
+            i += 1
+        tkinter.messagebox.showinfo("showinfo", "更新完成")
+        root.destroy()
+        exit()
+    
 def downloads():
     import os
     import time
@@ -142,78 +224,59 @@ def downloads():
     else:
       pass
     
-    _loading()
-def cheakUpdate():
-    fileName = "webDownloader-2.2"
-    try:
-        downloads()
-    except:
-        if not os.path.isfile(os.path.join(basePath,fileName+".exe")):
-            try:
-                exec(open(fileName+".py","rb").read())
-            except:
-                pass
-        elif not os.path.isfile(os.path.join(basePath,fileName+".py")):
-            try:
-                os.system(fileName+".exe")
-            except:
-                pass
-        else:
-            downloads()
-def game_s_cli_2():
-    #messagebox.showinfo("Find Next","尋找下一筆")
-    fileName = "game_socket-client_2P-GUIv2.2"
-    if not os.path.isfile(os.path.join(basePath,fileName+".exe")): 
-        exec(open(fileName+".py","rb").read())
-    else:
-        os.system(fileName+".exe")
-def game_s_ser_2():
-    #messagebox.showinfo("Find Pre","尋找上一筆")
-    fileName = "game_socket-server_2P-GUIv2.2"
-    if not os.path.isfile(os.path.join(basePath,fileName+".exe")): 
-        exec(open(fileName+".py","rb").read())
-    else:
-        os.system(fileName+".exe")
-    
-root = Tk()
-root.title("Mune")#ch16_8
-root.geometry("300x180")
-
-menubar = Menu(root)                        # 建立最上層功能表
-# 建立功能表類別物件,和將此功能表類別命名File 
-filemenu = Menu(menubar,tearoff=False)
-menubar.add_cascade(label="File",menu=filemenu,underline=0)
-# 在File功能表內建立功能表清單
-# 首先在File功能表內建立find子功能表物件
-#findmenu = Menu(filemenu,tearoff=False)     # 取消分隔線
-#findmenu.add_command(label="game_socket-client_2P-GUIv2.1.py",command=game_s_cli_2)
-#findmenu.add_command(label="game_socket-server_2P-GUIv2.1.py",command=game_s_ser_2)
-
-gamemenu = Menu(menubar,tearoff=False)     # 取消分隔線
-menubar.add_cascade(label="Game",menu=gamemenu)
-gamemenu.add_command(label="game_socket-client_2P-GUIv2.2",command=game_s_cli_2)
-gamemenu.add_command(label="game_socket-server_2P-GUIv2.2",command=game_s_ser_2)
-
-# 下列是增加分隔線和建立Exit!指令
-filemenu.add_separator()
-filemenu.add_command(label="Exit!",command=root.destroy,underline=0)
-
-root.config(menu=menubar)                   # 顯示功能表物件
-
-#檢查更新
-#while cheakUpdate():
-cheakUpdate()
-
-root.mainloop()
+    loading()
+    #_loading()
+def state():
+    global count
+    global maxbytes
+    if bytes >= maxbytes:
+        count += 1
+        
+tkinter.messagebox.showinfo("showinfo", "檢查更新中,請耐心等候")
 
 
 
+th2 = threading.Thread(target = state())
+#count += 1
+
+th3 = threading.Thread(target = downloads())
+#downloads()
+th1 = threading.Thread(target = root.mainloop())
+#root.mainloop()
+th4 = threading.Thread(target = load())
+#cheakstate()
+
+def cheakstate():
+    if count == 0:
+        tkinter.messagebox.showinfo("showinfo", "檢查更新中請耐心等候")
+        #root.mainloop()
+        pass#count += 1
+    elif count == 1:
+        tkinter.messagebox.showinfo("showinfo", "更新完成")
+        
+        time.sleep(1)
+        
+    elif count == 2:
+        time.sleep(1.5)
+        th2.join()
+        th3.join()
+        th4.join()
+        #th5.join()
+        th1.join()
+        #exit()
+        
+th5 = threading.Thread(target = cheakstate())
 
 
 
+#load()
+#downloads()
+#cheakstate()
 
+th1.start()
 
-
-
-
+th5.start()
+th3.start()
+th4.start()
+th2.start()
 

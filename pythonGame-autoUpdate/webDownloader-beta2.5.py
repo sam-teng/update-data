@@ -15,8 +15,9 @@ from cheakfile import cheakFile,replaceFile
 
 root = Tk()
 root.title("cheakUpdate")
-bytes = 0                           # 設定初值
-maxbytes = 10000                    # 假設下載檔案大小 
+_bytes = 0                          # 設定初值
+maxbytes = 10000                    # 假設下載檔案大小
+state = 0
 count = 0
 
 fn = None
@@ -41,24 +42,41 @@ def main():
 
 pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
 pb.pack(padx=10,pady=10)
-pb["value"] = 0                     # Prograssbar初始值
+#pb["value"] = 0                     # Prograssbar初始值
+#pb["maximum"] = maxbytes            # Prograddbar最大值
 
 def load():                         # 啟動Prograssbar
+    pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
+    pb.pack(padx=10,pady=10)
     pb["value"] = 0                 # Prograssbar初始值
     pb["maximum"] = maxbytes        # Prograddbar最大值
     
     loading()
 
 def loading():                      # 模擬下載資料
-    global bytes
-    bytes += 200//len(data.split(","))   # 模擬每次下在500bytes
-    pb["value"] = bytes             # 設定指針
-    if bytes < maxbytes:
-        pb.after(50,loading)        # 經過0.05秒繼續執行loading
+    
+    if state == 0:
+        
+        """
+        pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
+        pb.pack(padx=10,pady=10)
+        """
+        pb["value"] = 0                 # Prograssbar初始值
+        pb["maximum"] = maxbytes        # Prograddbar最大值
+        
+    global _bytes
+    
+    
+    if _bytes < maxbytes:
+        _bytes += 200//len(data.split(","))   # 模擬每次下載500bytes
+        pb["value"] = _bytes              # 設定指針
+        return False
+        #pb.after(50,loading)        # 經過0.05秒繼續執行loading
     else:
         replaceFile().replace_file()
         tkinter.messagebox.showinfo("showinfo", "更新完成")
-        root.destroy()
+        #root.destroy()
+        return True
         exit()
 def downloads():
     
@@ -77,6 +95,8 @@ def downloads():
         
         if yt_url == "":
           yt_url = "https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py"
+        if yt_url is not "http":
+            continue
         try:
           url = yt_url
           r = requests.get(url, auth=('user', 'pass'))#https://api.github.com
@@ -86,6 +106,7 @@ def downloads():
           response = requests.get(f'{url}')
             
           with open("%d.zip"%(i), 'wb') as file:
+              th4.start()
               file.write(response.content)
               file.close()
           """
@@ -137,21 +158,16 @@ def downloads():
         
     else:
       pass
-    loading()
+    if not loading():
+        downloads()
+    else:
+        exit()
+        pass
+        #root.destroy()
 def state():
     global count
-    if bytes >= maxbytes:
+    if _bytes >= maxbytes:
         count += 1
-
-#th0 = threading.Thread(target = _exec())
-th1 = threading.Thread(target = downloads())
-#load()
-th2 = threading.Thread(target = main())
-#root.mainloop()
-th3 = threading.Thread(target = state())
-#count += 1
-th4 = threading.Thread(target = load())
-#cheakstate()
 
 def cheakstate():
     if count == 0:
@@ -170,17 +186,29 @@ def cheakstate():
         th4.join()
         #th5.join()
         th2.join()
-        #exit()
-        
-th5 = threading.Thread(target = cheakstate())
+        exit()
+     
+def __init__():
+    #th0 = threading.Thread(target = _exec())
+    th1 = threading.Thread(target = downloads())
+    #load()
+    th2 = threading.Thread(target = main())
+    #root.mainloop()
+    th3 = threading.Thread(target = state())
+    #count += 1
+    th4 = threading.Thread(target = loading())
+    #cheakstate()
+
+    th5 = threading.Thread(target = cheakstate())
 
 #load()
 #downloads()
 #cheakstate()
-th2.start()
+    th2.start()
 
-th5.start()
-th3.start()
-th4.start()
-th1.start()
-#th0.start()
+    th5.start()
+    th3.start()
+    #th4.start()
+    th1.start()
+    #th0.start()
+__init__()

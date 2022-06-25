@@ -1,4 +1,4 @@
-import os,site
+import os
 import time
 import wget,sys
 import urllib #urllib2.urlopen 
@@ -11,7 +11,7 @@ from tkinter import *
 from tkinter.ttk import *
 import tkinter.messagebox
 
-from cheakfile import cheakFile,replaceFile
+from cheakfile import cheakFile
 
 root = Tk()
 root.title("cheakUpdate")
@@ -36,16 +36,15 @@ def _exec():
         fr = fr.read()
         print(fr)
         exec(fr)
-def main():
-    root.mainloop()
 
 pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
 pb.pack(padx=10,pady=10)
 pb["value"] = 0                     # Prograssbar初始值
+pb["maximum"] = maxbytes        # Prograddbar最大值
 
 def load():                         # 啟動Prograssbar
-    pb["value"] = 0                 # Prograssbar初始值
-    pb["maximum"] = maxbytes        # Prograddbar最大值
+    #pb["value"] = 0                 # Prograssbar初始值
+    #pb["maximum"] = maxbytes        # Prograddbar最大值
     
     loading()
 
@@ -56,7 +55,34 @@ def loading():                      # 模擬下載資料
     if bytes < maxbytes:
         pb.after(50,loading)        # 經過0.05秒繼續執行loading
     else:
-        replaceFile().replace_file()
+        global count
+        pram = """
+        game_socket-client_2P-GUIv2.py,
+        game_socket-server_2P-GUIv2.py,
+        view.py
+
+        """
+        file_source = "temp/update-data-main/pythonGame-autoUpdate/"
+        file_destination = "./"
+        i = 1
+        for arg in pram.split(","):
+            if not cheakFile(arg,file_source+arg):
+                if i == len(pram.split(",")):
+                    tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
+                #更新目前檔案
+                
+                 
+                get_files = os.listdir(file_source)
+                 
+                for g in get_files:
+                    os.replace(file_source + g, file_destination + g)
+            else:
+                if i == len(pram.split(",")):
+                    tkinter.messagebox.showinfo("showinfo", "完成")
+                    count += 1
+                    root.destroy()
+                    exit()
+            i += 1
         tkinter.messagebox.showinfo("showinfo", "更新完成")
         root.destroy()
         exit()
@@ -129,7 +155,7 @@ def downloads():
           tkinter.messagebox.showinfo("showinfo", "第"+str(i+1)+"項"+"更新失敗")
           if i == 0:
               root.destroy()
-              quit()
+              exit()
           #yt_title.remove(yt.title)
         finally:
           i = i + 1
@@ -143,10 +169,9 @@ def state():
     if bytes >= maxbytes:
         count += 1
 
-#th0 = threading.Thread(target = _exec())
 th1 = threading.Thread(target = downloads())
 #load()
-th2 = threading.Thread(target = main())
+th2 = threading.Thread(target = root.mainloop())
 #root.mainloop()
 th3 = threading.Thread(target = state())
 #count += 1
@@ -162,9 +187,7 @@ def cheakstate():
         time.sleep(1)
         
     elif count == 2:
-        
         time.sleep(1.5)
-        #th0.join()
         th1.join()
         th3.join()
         th4.join()
@@ -183,4 +206,4 @@ th5.start()
 th3.start()
 th4.start()
 th1.start()
-#th0.start()
+

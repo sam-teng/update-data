@@ -5,6 +5,8 @@ import urllib #urllib2.urlopen
 
 import requests
 
+import threading
+
 from tkinter import *
 from tkinter.ttk import *
  
@@ -22,25 +24,26 @@ https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py,
 https://github.com/sam-teng/update-data/archive/refs/heads/main.zip
 """
 
+pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
+pb.pack(padx=10,pady=10)
+pb["value"] = 0                     # Prograssbar初始值
+
 def load():                         # 啟動Prograssbar
     pb["value"] = 0                 # Prograssbar初始值
     pb["maximum"] = maxbytes        # Prograddbar最大值
+    
     loading()
+
 def loading():                      # 模擬下載資料
     global bytes
-    bytes += 500                    # 模擬每次下在500bytes
+    bytes += 200//len(data.split(","))   # 模擬每次下在500bytes
     pb["value"] = bytes             # 設定指針
     if bytes < maxbytes:
         pb.after(50,loading)        # 經過0.05秒繼續執行loading
-    global count
-    if count == 0:
-        count += 1
-        downloads()
     else:
-        time.sleep(1.5)
         quit()
-
 def downloads():
+    
     # ------
     import zipfile #zipfile.ZipFile
     if fn == None:
@@ -94,15 +97,35 @@ def downloads():
         finally:
           i = i + 1
           time.sleep(3)
+        
     else:
       pass
-    loading()    
+    loading()
+def state():
+    if bytes >= maxbytes:
+        count += 1
+    
+th1 = threading.Thread(target = load())
+#load()
+th2 = threading.Thread(target = root.mainloop())
+#root.mainloop()
+th3 = threading.Thread(target = state())
+#count += 1
+th4 = threading.Thread(target = downloads())
+def cheakstate():
+    if count == 0:
+        pass#count += 1
+    else:
+        time.sleep(1.5)
+        th1.join()
+        th2.join()
+        th3.join()
+        th4.join()
+        quit()
+    
 
-pb = Progressbar(root,length=200,mode="indeterminate",orient=HORIZONTAL)
-pb.pack(padx=10,pady=10)
-pb["value"] = 0                     # Prograssbar初始值
-load()
+th3.start()
+th4.start()
+th1.start()
 
-
-
-root.mainloop()
+th2.start()

@@ -21,7 +21,9 @@ count = 0
 
 fn = None
 data = """
-https://github.com/sam-teng/update-data/archive/refs/heads/main.zip,
+https://github.com/sam-teng/update-data/archive/refs/heads/main.zip
+"""
+""",
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-server_2P-GUIv2.py,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py
@@ -51,6 +53,7 @@ def loading():                      # 模擬下載資料
     if bytes < maxbytes:
         pb.after(50,loading)        # 經過0.05秒繼續執行loading
     else:
+        global count
         pram = """
         game_socket-client_2P-GUIv2.py,
         game_socket-server_2P-GUIv2.py,
@@ -59,9 +62,11 @@ def loading():                      # 模擬下載資料
         """
         file_source = "temp/update-data-main/pythonGame-autoUpdate/"
         file_destination = "./"
+        i = 1
         for arg in pram.split(","):
             if not cheakFile(arg,file_source+arg):
-                tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
+                if i == len(pram.split(",")):
+                    tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
                 #更新目前檔案
                 
                  
@@ -70,10 +75,13 @@ def loading():                      # 模擬下載資料
                 for g in get_files:
                     os.replace(file_source + g, file_destination + g)
             else:
-                tkinter.messagebox.showinfo("showinfo", "完成")
-                quit()
-        #tkinter.messagebox.showinfo("showinfo", "更新完成")
-        quit()
+                if i == len(pram.split(",")):
+                    tkinter.messagebox.showinfo("showinfo", "完成")
+                    count += 1
+                    exit()
+            i += 1
+        tkinter.messagebox.showinfo("showinfo", "更新完成")
+        exit()
 def downloads():
     
     # ------
@@ -149,6 +157,7 @@ def downloads():
       pass
     loading()
 def state():
+    global count
     if bytes >= maxbytes:
         count += 1
 
@@ -160,7 +169,7 @@ th3 = threading.Thread(target = state())
 #count += 1
 th4 = threading.Thread(target = load())
 #cheakstate()
-th5 = threading.Thread(target = cheakstate())
+
 def cheakstate():
     if count == 0:
         pass#count += 1
@@ -174,10 +183,12 @@ def cheakstate():
         th1.join()
         th3.join()
         th4.join()
-        th5.join()
+        #th5.join()
         th2.join()
-        quit()
+        #exit()
         
+th5 = threading.Thread(target = cheakstate())
+
 #load()
 #downloads()
 #cheakstate()

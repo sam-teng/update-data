@@ -5,9 +5,14 @@ import urllib #urllib2.urlopen
 
 import requests
 
+import threading
+
 from tkinter import *
 from tkinter.ttk import *
- 
+import tkinter.messagebox
+
+from cheakfile import cheakFile
+
 root = Tk()
 root.title("cheakUpdate")
 bytes = 0                           # 設定初值
@@ -16,31 +21,46 @@ count = 0
 
 fn = None
 data = """
+https://github.com/sam-teng/update-data/archive/refs/heads/main.zip,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-server_2P-GUIv2.py,
-https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py,
-https://github.com/sam-teng/update-data/archive/refs/heads/main.zip
+https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py
+
 """
+
+pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
+pb.pack(padx=10,pady=10)
+pb["value"] = 0                     # Prograssbar初始值
 
 def load():                         # 啟動Prograssbar
     pb["value"] = 0                 # Prograssbar初始值
     pb["maximum"] = maxbytes        # Prograddbar最大值
+    
     loading()
+
 def loading():                      # 模擬下載資料
     global bytes
-    bytes += 500                    # 模擬每次下在500bytes
+    bytes += 200//len(data.split(","))   # 模擬每次下在500bytes
     pb["value"] = bytes             # 設定指針
     if bytes < maxbytes:
         pb.after(50,loading)        # 經過0.05秒繼續執行loading
-    global count
-    if count == 0:
-        count += 1
-        downloads()
     else:
-        time.sleep(1.5)
-        quit()
+        pram = """
+        game_socket-client_2P-GUIv2.py,
+        game_socket-server_2P-GUIv2.py,
+        view.py
 
+        """
+        for arg in pram.split(","):
+            if not cheakFile(arg,"temp/"+arg):
+                pass
+            else:
+                tkinter.messagebox.showinfo("showinfo", "完成")
+                quit()
+        tkinter.messagebox.showinfo("showinfo", "更新完成")
+        quit()
 def downloads():
+    
     # ------
     import zipfile #zipfile.ZipFile
     if fn == None:
@@ -61,6 +81,12 @@ def downloads():
           r = requests.get(url, auth=('user', 'pass'))#https://api.github.com
           print(r.status_code)
           print(r.headers['content-type'])
+          
+          response = requests.get(f'{url}')
+            
+          with open("%d.zip"%(i), 'wb') as file:
+              file.write(response.content)
+              file.close()
           """
           req = urllib.request(url)
           downloadurl = urllib.urlopen(req)
@@ -68,7 +94,16 @@ def downloads():
           with open("%d.py"%(i), 'wb') as f:#with open("%d."+input("請輸入副檔名")%(i), 'wb') as f:
               f.write(zipcontent)
               """
-          w = wget.download(url,out="\\"+i+".rar")
+          """
+          w = wget.download(url,out="\\"+str(i)+".zip")
+          """
+          from zipfile import ZipFile
+          
+          test_file_name = str(i)+".zip"
+
+          with ZipFile(test_file_name, 'r') as zip:
+            zip.printdir()
+            zip.extractall("temp") 
           """
           yt = YouTube(yt_url)#YouTube('https://www.youtube.com/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ')
           print('strart downloads: ',yt.title)
@@ -86,7 +121,7 @@ def downloads():
           print('finish',yt.title,'downloads!')
           """
           
-          exec(open("cheakfile.py").read())
+          #exec(open("cheakfile.py").read())
           
         except:
           print("can't from" + yt_url + "\t download file")
@@ -94,15 +129,46 @@ def downloads():
         finally:
           i = i + 1
           time.sleep(3)
+        
     else:
       pass
-    loading()    
-
-pb = Progressbar(root,length=200,mode="indeterminate",orient=HORIZONTAL)
-pb.pack(padx=10,pady=10)
-pb["value"] = 0                     # Prograssbar初始值
+    #loading()
+def state():
+    if bytes >= maxbytes:
+        count += 1
+    
+th1 = threading.Thread(target = exec(open("updatefile.py").read()))
+#load()
+th2 = threading.Thread(target = root.mainloop())
+#root.mainloop()
+th3 = threading.Thread(target = state())
+#count += 1
+th4 = threading.Thread(target = downloads())
+#cheakstate()
+th5 = threading.Thread(target = cheakstate())
+def cheakstate():
+    if count == 0:
+        pass#count += 1
+    elif count == 1:
+        tkinter.messagebox.showinfo("showinfo", "更新完成")
+        
+        time.sleep(1)
+        
+    elif count == 2:
+        time.sleep(1.5)
+        th1.join()
+        th3.join()
+        th4.join()
+        th5.join()
+        th2.join()
+        quit()
+        
 load()
+downloads()
+#cheakstate()
+th5.start()
+th3.start()
+th4.start()
+th1.start()
 
-
-
-root.mainloop()
+th2.start()

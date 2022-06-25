@@ -18,8 +18,7 @@ fn = None
 data = """
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-server_2P-GUIv2.py,
-https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py,
-https://github.com/sam-teng/update-data/archive/refs/heads/main.zip
+https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/view.py
 """
 
 def load():                         # 啟動Prograssbar
@@ -61,14 +60,12 @@ def downloads():
           r = requests.get(url, auth=('user', 'pass'))#https://api.github.com
           print(r.status_code)
           print(r.headers['content-type'])
-          """
-          req = urllib.request(url)
-          downloadurl = urllib.urlopen(req)
+          req = urllib2.Request(url)
+          downloadurl = urllib2.urlopen(req)
           zipcontent = downloadurl.read()
           with open("%d.py"%(i), 'wb') as f:#with open("%d."+input("請輸入副檔名")%(i), 'wb') as f:
               f.write(zipcontent)
-              """
-          w = wget.download(url,out="\\"+i+".rar")
+          #w = wget.download(url,out="\\"+i+".rar")
           """
           yt = YouTube(yt_url)#YouTube('https://www.youtube.com/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ')
           print('strart downloads: ',yt.title)
