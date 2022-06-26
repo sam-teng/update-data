@@ -3,6 +3,7 @@ class cheakFile:
     correspond_file_path = None
     from_f = ""
     correspond_f = ""
+    mode = ""
     from_file_list = []
     file_list = []
     from_dir_list = []
@@ -20,15 +21,18 @@ class cheakFile:
         #def add_FFL(self,from_file_path):
         # 函數功能: 遞迴顯示指定路徑下的所有檔案及資料夾名稱
         for fd in os.listdir(from_file_path):
-            from_full_path=os.path.join(from_file_path,fd)
+            #if fd is "":
+            #   continue
+            from_full_path = os.path.join(from_file_path,fd)
             if os.path.isdir(from_full_path):
-                #print('資料夾:',from_full_path)
+                print('資料夾:',from_full_path)
                 #self.find_dir(from_full_path,correspond_file_path)
                 self.from_dir_list.append(from_full_path)
             else:
-                #print('檔案:',from_full_path)
+                print('檔案:',from_full_path)
 
                 self.from_file_list.append(from_full_path)
+        print("=-" * 20)
         """
         if from_file_path is str:
             add_FFL(from_file_path)
@@ -71,37 +75,51 @@ class cheakFile:
                 report.append(FFL+" = "+CFL+"\t"+str(cf)+",\n")
 
         #"""
-        from_dir_list = ""
-        dir_list = ""
+        print(self.from_dir_list,"\t",self.dir_list)
+        from_dirList = ""
+        dirList = ""
+        if self.from_dir_list == []:
+            from_dirList = from_file_path
+        if self.dir_list == []:
+            dirList = correspond_file_path
         if not self.from_dir_list == []:
-            for from_dir_list in self.from_dir_list:
-                
+            for from_dirList in self.from_dir_list:
+                #from_dirList = from_dir_list
                 if not self.dir_list == []:
-                    for dir_list in self.dir_list:
+                    for dirList in self.dir_list:
+                        #dir_list = dir_list
+                        print(from_dirList,dirList,"+"*10)
                         #"""
                         time.sleep(0.5)
-                        t2 = threading.Thread(target = self.find_dir(dir_list,correspond_file_path))
+                        t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
                         rlock2 = t2.RLock()
                         semaphore2 = t2.Semaphore(1)
                         rlock2.acquire()
                         semaphore2.acquire()
                         # 執行該子執行緒
                         t2.start()
-                        
-        print(from_dir_list,dir_list)
-        """
+            #"""
+        elif not self.dir_list == []:
+            print("self.from_dir_list is ",self.from_dir_list)
+        else:
+            print("self.from_dir_list&self.dir_list is ",self.from_dir_list,self.from_dir_list)
+            return report
+        print(from_dirList,dirList)
+        if from_dirList == "" or dirList == "":
+            #print(from_dirList,",",dirList,self.report)
+            return report
+        #"""
         time.sleep(0.5)
-        t1 = threading.Thread(target = self.find_dir(from_dir_list,dir_list))
+        t1 = threading.Thread(target = self.find_dir(from_dirList,dirList))
         rlock1 = t1.RLock()
         semaphore1 = t1.Semaphore(1)
         rlock1.acquire()
         semaphore1.acquire()
         # 執行該子執行緒
         t1.start()            
-                """
-        if from_dir_list == "" or dir_list == "":
-            return
-        t2 = threading.Thread(target = self.find_dir(from_dir_list,dir_list))
+        #       """
+        
+        #t2 = threading.Thread(target = self.find_dir(from_dir_list,dir_list))
         """
                 # 主執行緒繼續執行自己的工作
                 for i in range(3):
@@ -110,7 +128,7 @@ class cheakFile:
                 """
                 
                 
-        """
+        #"""
         
                 
         # 等待 t1 這個子執行緒結束
@@ -118,12 +136,12 @@ class cheakFile:
         rlock1.release()
         semaphore1.release()
         # 等待 t2 這個子執行緒結束
-        """
+        #"""
         t2.join()
         rlock2.release()
         semaphore2.release()
-        """
-        """
+        #"""
+        #"""
         
         self.report = []
         self.from_file_list = []
@@ -151,6 +169,17 @@ class cheakFile:
         return => "file" mode: string, "path" mode: list .
         
         """
+        self.from_file_path,self.correspond_file_path = from_file_path,correspond_file_path
+        self.mode = mode
+    def main(self):
+        """
+        mode => "file" & "path" .
+        return => "file" mode: string, "path" mode: list .
+        
+        """
+        from_file_path = self.from_file_path
+        correspond_file_path = self.correspond_file_path
+        mode = self.mode
         if str(mode) == "file":
             r = self.setup(from_file_path,correspond_file_path)
             if not r == None:
@@ -158,7 +187,12 @@ class cheakFile:
                return r
         elif str(mode) == "path":
             r = self.find_dir(from_file_path,correspond_file_path)
-            return r
+            
+            report = ""
+            for rpt in r:
+                report += rpt +",\n"
+            
+            return r, report
     def cheakFile(self):
         if self.from_f == self.correspond_f:
             #self.from_f = ""
