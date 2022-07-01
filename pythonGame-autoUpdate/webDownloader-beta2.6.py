@@ -20,12 +20,13 @@ maxbytes = 10000                    # 假設下載檔案大小
 state = 0
 count = 0
 i = 0
+lenght = 0
 
 fn = None
 data = """
 https://github.com/sam-teng/update-data/archive/refs/heads/main.zip,
-https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/bin.py,
 """
+
 """,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py,
 https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-server_2P-GUIv2.py,
@@ -79,8 +80,26 @@ def loading():                      # 模擬下載資料
         #root.destroy()
         return True
         exit()
+def preview():
+    global lenght
+    i = 0
+    if fn == None:
+        if len(list(data)) == 0:
+            yt_urls = input("enter your file's full url")
+        else:
+            yt_urls = data
+        yt_urls = yt_urls.split(",")
+        for yt_url in yt_urls:
+            i += 1
+            if yt_url == "":
+              yt_url = "https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py"
+            if not "http" in yt_url:
+                lenght += 1
+                continue
+    lenght = i - lenght
 def downloads():
     global i
+    global lenght
     # ------
     import zipfile #zipfile.ZipFile
     if fn == None:
@@ -95,7 +114,8 @@ def downloads():
       for yt_url in yt_urls:
         
         if yt_url == "":
-          yt_url = "https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py"
+            #yt_url = "https://github.com/sam-teng/update-data/blob/main/pythonGame-autoUpdate/game_socket-client_2P-GUIv2.py"
+            continue
         if not "http" in yt_url:
             continue
         try:
@@ -149,7 +169,7 @@ def downloads():
         except:
           print("can't from" + yt_url + "\t download file")
           tkinter.messagebox.showinfo("showinfo", "第"+str(i+1)+"項"+"更新失敗")
-          if i == len(yt_urls):
+          if i+1 == lenght:
               root.destroy()
               quit()
           #yt_title.remove(yt.title)
@@ -181,6 +201,7 @@ def cheakstate():
     elif count == 2:
         
         time.sleep(1.5)
+        #th.join()
         #th0.join()
         th1.join()
         th3.join()
@@ -190,6 +211,7 @@ def cheakstate():
         exit()
      
 def __init__():
+    th = threading.Thread(target = preview())
     #th0 = threading.Thread(target = _exec())
     th1 = threading.Thread(target = downloads())
     #load()
@@ -209,7 +231,9 @@ def __init__():
 
     th5.start()
     th3.start()
-    #th4.start()
+    th.start()
+    th.join()
+    #th4.start()#->move into downloads.
     th1.start()
     #th0.start()
 __init__()
