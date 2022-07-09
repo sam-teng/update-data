@@ -171,14 +171,27 @@ class replaceFile:
         self.file_destination = file_destination
     def replace_file(self):
         pram = """
-        game_socket-client_2P-GUIv2.py,
-        game_socket-server_2P-GUIv2.py,
-        view.py
+game_socket-client_2P-GUIv2.py,
+game_socket-server_2P-GUIv2.py,
+view.py
 
         """
         
         
         i = 1
+        
+        _pram = ""
+        for space in pram.split("\n"):
+            if not space == "\n":
+                _pram += space
+        pram = _pram
+        
+        _pram = ""
+        for space in pram.split("\t"):
+            if not space == "\t":
+                _pram += space
+        pram = _pram
+        
         for arg in pram.split(","):
             if not cheakFile(arg,self.file_source+arg):
                 if i == len(pram.split(",")):

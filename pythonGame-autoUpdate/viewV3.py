@@ -65,7 +65,8 @@ def cheakUpdate():
         except:
             return
     else:
-        cheakUpdate()
+        return
+        #cheakUpdate()
 def game_s_cli_2():
     #messagebox.showinfo("Find Next","尋找下一筆")
     fileName = "game_socket-client_2P-GUIv2.2"
@@ -112,16 +113,19 @@ def __init__():
     
 t[0] = threading.Thread(target = __init__())
 
+"""
 rlock1 = t[0].RLock()
 semaphore1 = t[0].Semaphore(1)
 rlock1.acquire()
 semaphore1.acquire()
+"""
 # 執行該子執行緒
 t[0].start()           
 t[0].join()
+"""
 rlock1.release()
 semaphore1.release()
-
+"""
 
 
 
