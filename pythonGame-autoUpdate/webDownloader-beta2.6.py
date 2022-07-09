@@ -171,7 +171,7 @@ def downloads():
           tkinter.messagebox.showinfo("showinfo", "第"+str(i+1)+"項"+"更新失敗")
           if i+1 == lenght:
               root.destroy()
-              quit()
+              exit()
           #yt_title.remove(yt.title)
         finally:
           i = i + 1

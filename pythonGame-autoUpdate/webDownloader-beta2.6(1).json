@@ -1,0 +1,125 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "D:/\u6587\u4ef6/python/pythonGame-autoUpdate-copy/webDownloader-beta2.6.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": true
+  },
+  {
+   "optionDest": "console",
+   "value": true
+  },
+  {
+   "optionDest": "icon_file",
+   "value": "D:/\u6587\u4ef6/python/pythonGame-autoUpdate-copy/python GUI game update.ico"
+  },
+  {
+   "optionDest": "ascii",
+   "value": false
+  },
+  {
+   "optionDest": "clean_build",
+   "value": false
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": true
+  },
+  {
+   "optionDest": "version_file",
+   "value": "D:/\u6587\u4ef6/python/pythonGame-autoUpdate-copy/version.txt"
+  },
+  {
+   "optionDest": "embed_manifest",
+   "value": true
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "win_private_assemblies",
+   "value": false
+  },
+  {
+   "optionDest": "win_no_prefer_redirects",
+   "value": false
+  },
+  {
+   "optionDest": "bundle_identifier",
+   "value": "0.0.1"
+  },
+  {
+   "optionDest": "target_arch",
+   "value": "x86_64,arm64,universal2"
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "os"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "site"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "time"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "wget"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "sys"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "urlib"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "requests"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "threading"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "tkinter"
+  },
+  {
+   "optionDest": "collect_data",
+   "value": "cheakfileV1_4_4"
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}
