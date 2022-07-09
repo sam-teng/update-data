@@ -67,6 +67,7 @@ class cheakFile:
                 #print(CFL)
                 
                 r = self.setup(str(FFL),str(CFL))
+                del r
                 #print("r=",r)
                 cf = False
                 #if not r == None:
@@ -80,8 +81,12 @@ class cheakFile:
         dirList = ""
         if self.from_dir_list == []:
             from_dirList = from_file_path
+            
         if self.dir_list == []:
             dirList = correspond_file_path
+        
+        t2, rlock2, semaphore2 = None, None, None
+            
         if not self.from_dir_list == []:
             for from_dirList in self.from_dir_list:
                 #from_dirList = from_dir_list
@@ -90,7 +95,7 @@ class cheakFile:
                         #dir_list = dir_list
                         print(from_dirList,dirList,"+"*10)
                         #"""
-                        time.sleep(0.5)
+                        time.sleep(0.005)
                         t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
                         rlock2 = threading.RLock()
                         semaphore2 = threading.Semaphore(1)
@@ -98,6 +103,10 @@ class cheakFile:
                         semaphore2.acquire()
                         # 執行該子執行緒
                         t2.start()
+                
+                        self.dir_list.remove(dirList)
+                self.from_dir_list.remove(from_dirList)
+                
             #"""
         elif not self.dir_list == []:
             print("self.from_dir_list is ",self.from_dir_list)
@@ -108,7 +117,7 @@ class cheakFile:
         if from_dirList == "" or dirList == "":
             #print(from_dirList,",",dirList,self.report)
             return report
-        #"""
+        """
         time.sleep(0.5)
         t1 = threading.Thread(target = self.find_dir(from_dirList,dirList))
         rlock1 = threading.RLock()
@@ -117,7 +126,7 @@ class cheakFile:
         semaphore1.acquire()
         # 執行該子執行緒
         t1.start()            
-        #       """
+               """
         
         #t2 = threading.Thread(target = self.find_dir(from_dir_list,dir_list))
         """
@@ -128,7 +137,7 @@ class cheakFile:
                 """
                 
                 
-        #"""
+        """
         
                 
         # 等待 t1 這個子執行緒結束
@@ -136,7 +145,7 @@ class cheakFile:
         rlock1.release()
         semaphore1.release()
         # 等待 t2 這個子執行緒結束
-        #"""
+        """
         t2.join()
         rlock2.release()
         semaphore2.release()
@@ -372,6 +381,7 @@ class packageFile(cheakFile):
                         Ff = FFL
                         Ff.split(".").pop()
                         self.package(str(Ff),"unicorn.ico",v)
+                        #print(Ff,"has been packaged.")
             except:
                 try:
                     with open(from_file_path+"version","r") as v:
@@ -380,6 +390,7 @@ class packageFile(cheakFile):
                             Ff = FFL
                             Ff.split(".").pop()
                             self.package(str(Ff),"unicorn.ico",v)
+                            #print(Ff,"has been packaged.")
                 except:
                     with open("version","w") as v:
                         v = v.write(self.version)
@@ -387,6 +398,7 @@ class packageFile(cheakFile):
                             Ff = FFL
                             Ff.split(".").pop()
                             self.package(str(Ff),"unicorn.ico",v)
+                            #print(Ff,"has been packaged.")
             report.append(FFL)
         tkinter.messagebox.showinfo("showinfo", "完成")
         #"""
@@ -400,8 +412,10 @@ class packageFile(cheakFile):
             dirList = correspond_file_path
         
         t2, rlock2, semaphore2 = "", "", ""
+        state = False
         
         if not self.from_dir_list == []:
+            state = True
             for from_dirList in self.from_dir_list:
                 print(from_dirList)
                 #from_dirList = from_dir_list
@@ -412,10 +426,11 @@ class packageFile(cheakFile):
                         print(from_dirList,dirList,"+"*10)
                         '''
                 #"""
-                time.sleep(0.5)
+                self.from_dir_list.remove(from_dirList)
+                time.sleep(0.005)
                 t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
-                rlock2 = t2.RLock()
-                semaphore2 = t2.Semaphore(1)
+                rlock2 = threading.RLock()
+                semaphore2 = threading.Semaphore(1)
                 rlock2.acquire()
                 semaphore2.acquire()
                 # 執行該子執行緒
@@ -461,9 +476,12 @@ class packageFile(cheakFile):
         semaphore1.release()
         # 等待 t2 這個子執行緒結束
         """
-        t2.join()
-        rlock2.release()
-        semaphore2.release()
+        if state:
+            t2.join()
+            rlock2.release()
+            semaphore2.release()
+        else:
+            del t2, rlock2, semaphore2
         #"""
         #"""
         
@@ -490,14 +508,24 @@ class packageFile(cheakFile):
     def package(self,fileName,icon = "unicorn",version = "0.0.0"):
         import os
         
-        file_name = fileName.split("/").pop()
+        file_name = fileName.replace("\\","/").split("/").pop()
         file_name.split(".").pop()
         
+        i = 0
         with open(self.file_source+"config","r") as config:
             config = config.read()
+            print("config:",config)
             for c in config.split(",\n"):
+                print(file_name,c)
+                i += 1
                 if not file_name is c:
-                    return
+                    i -= 1
+        print("i:",i)
+        
+        if not i == 1:
+            return
+        
+        print(fileName,"has been packaged.")
         
         args = '''\
         --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
