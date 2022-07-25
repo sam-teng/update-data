@@ -9,7 +9,8 @@ class cheakFile:
     from_dir_list = []
     dir_list = []
     report = []
-    def find_dir(self,from_file_path,correspond_file_path):
+    t, rlock, semaphore = [], [], []
+    def find_dir(self,from_file_path,correspond_file_path,tc = 0,ti = 0):
         """
         copy from "https://yanwei-liu.medium.com/python-os%E6%A8%A1%E7%B5%84%E4%BD%BF%E7%94%A8%E7%AD%86%E8%A8%98-90c652e917c6"
         & https://blog.gtwang.org/programming/python-threading-multithreaded-programming-tutorial/
@@ -23,7 +24,7 @@ class cheakFile:
         for fd in os.listdir(from_file_path):
             #if fd is "":
             #   continue
-            from_full_path = os.path.join(from_file_path,fd)
+            from_full_path = os.path.join(from_file_path,fd).replace("\\","/")
             if os.path.isdir(from_full_path):
                 print('資料夾:',from_full_path)
                 #self.find_dir(from_full_path,correspond_file_path)
@@ -42,7 +43,7 @@ class cheakFile:
                 """
         #def add_CFL(self,correspond_file_path):
         for fd in os.listdir(correspond_file_path):
-            full_path=os.path.join(correspond_file_path,fd)
+            full_path = os.path.join(correspond_file_path,fd).replace("\\","/")
             if os.path.isdir(full_path):
                 print('資料夾:',full_path)
                 #self.find_dir(full_path,correspond_file_path)\
@@ -85,29 +86,71 @@ class cheakFile:
         if self.dir_list == []:
             dirList = correspond_file_path
         
-        t2, rlock2, semaphore2 = None, None, None
-            
+        #t2, rlock2, semaphore2 = None, None, None
+        #t, rlock, semaphore = self.t, self.rlock, self.semaphore
+        c, i = 0, 0    
+        th, rl, sem = 0, 0, 0
+        try:
+            print(self.from_dir_list[tc])
+        except:
+            pass
+        try:
+            print(self.dir_list[ti])
+        except:
+            pass
+        
+        state = False
         if not self.from_dir_list == []:
             for from_dirList in self.from_dir_list:
                 #from_dirList = from_dir_list
+                if c < tc:
+                    continue
                 if not self.dir_list == []:
+                    state = True
                     for dirList in self.dir_list:
                         #dir_list = dir_list
+                        if i < ti:
+                            continue
                         print(from_dirList,dirList,"+"*10)
-                        #"""
+                        time.sleep(0.005)
+                        self.t.append(
+                            threading.Thread(target = self.find_dir,
+                                args = [
+                                    from_dirList,
+                                    dirList,
+                                    len(self.from_dir_list),
+                                    len(self.dir_list)
+                                ]
+                            )
+                        )
+                        self.rlock.append(threading.RLock())
+                        self.semaphore.append(threading.Semaphore(2))
+                        th, rl, sem = len(self.t)-1, len(self.rlock)-1, len(self.semaphore)-1
+                        self.rlock[rl].acquire()
+                        self.semaphore[sem].acquire()
+                        #self.t, self.rlock, self.semaphore = t, rlock, semaphore
+                        # 執行該子執行緒
+                        self.t[th].start()
+                        
+                        """
                         time.sleep(0.005)
                         t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
                         rlock2 = threading.RLock()
-                        semaphore2 = threading.Semaphore(1)
+                        semaphore2 = threading.Semaphore(2)
                         rlock2.acquire()
                         semaphore2.acquire()
                         # 執行該子執行緒
                         t2.start()
-                
+                        """
+                        """
                         self.dir_list.remove(dirList)
+                        """
+                        i += 1
+                """
                 self.from_dir_list.remove(from_dirList)
-                
-            #"""
+                     
+                """
+                c += 1
         elif not self.dir_list == []:
             print("self.from_dir_list is ",self.from_dir_list)
         else:
@@ -146,11 +189,16 @@ class cheakFile:
         semaphore1.release()
         # 等待 t2 這個子執行緒結束
         """
+        """
         t2.join()
         rlock2.release()
         semaphore2.release()
-        #"""
-        #"""
+        
+        """
+        if state:
+            self.t[th].join()
+            self.rlock[rl].release()
+            self.semaphore[sem].release()
         
         self.report = []
         self.from_file_list = []
@@ -172,7 +220,7 @@ class cheakFile:
                 return None
         else:
             return None
-    def __init__(self,from_file_path,correspond_file_path,mode = "file"):
+    def __init__(self,from_file_path : str,correspond_file_path : str,mode = "file") -> str:
         """
         mode => "file" & "path" .
         return => "file" mode: string, "path" mode: list .
@@ -180,6 +228,23 @@ class cheakFile:
         """
         self.from_file_path,self.correspond_file_path = from_file_path,correspond_file_path
         self.mode = mode
+        
+        from_file_path = self.from_file_path
+        correspond_file_path = self.correspond_file_path
+        mode = self.mode
+        if str(mode) == "file":
+            r = self.setup(from_file_path,correspond_file_path)
+            if not r == None:
+               r = cheakFile(self)
+               return r
+        elif str(mode) == "path":
+            r = self.find_dir(from_file_path,correspond_file_path)
+            
+            report = ""
+            for rpt in r:
+                report += rpt +",\n"
+            
+            return report
     def main(self):
         """
         mode => "file" & "path" .
@@ -304,7 +369,8 @@ class packageFile(cheakFile):
     from_dir_list = []
     dir_list = []
     report = []
-    def find_dir(self,from_file_path,correspond_file_path):
+    t, rlock, semaphore = [], [], []
+    def find_dir(self,from_file_path,correspond_file_path,tc = 0,ti = 0):
         """
         copy from "https://yanwei-liu.medium.com/python-os%E6%A8%A1%E7%B5%84%E4%BD%BF%E7%94%A8%E7%AD%86%E8%A8%98-90c652e917c6"
         & https://blog.gtwang.org/programming/python-threading-multithreaded-programming-tutorial/
@@ -313,14 +379,12 @@ class packageFile(cheakFile):
         import threading
         import time
         
-        import tkinter.messagebox
-
         #def add_FFL(self,from_file_path):
         # 函數功能: 遞迴顯示指定路徑下的所有檔案及資料夾名稱
         for fd in os.listdir(from_file_path):
             #if fd is "":
             #   continue
-            from_full_path = os.path.join(from_file_path,fd)
+            from_full_path = os.path.join(from_file_path,fd).replace("\\","/")
             if os.path.isdir(from_full_path):
                 print('資料夾:',from_full_path)
                 #self.find_dir(from_full_path,correspond_file_path)
@@ -337,10 +401,10 @@ class packageFile(cheakFile):
             for ff in correspond_file_path:
                 add_FFL(ff)
                 """
-        '''
         #def add_CFL(self,correspond_file_path):
+        """
         for fd in os.listdir(correspond_file_path):
-            full_path=os.path.join(correspond_file_path,fd)
+            full_path = os.path.join(correspond_file_path,fd).replace("\\","/")
             if os.path.isdir(full_path):
                 print('資料夾:',full_path)
                 #self.find_dir(full_path,correspond_file_path)\
@@ -349,6 +413,7 @@ class packageFile(cheakFile):
                 print('檔案:',full_path)
 
                 self.file_list.append(full_path)
+                """
         """
         if correspond_file_path is str:
             add_CFL(correspond_file_path)
@@ -356,7 +421,6 @@ class packageFile(cheakFile):
             for cf in correspond_file_path:
                 add_CFl(cf)
                 """
-        '''
         report = self.report
         for FFL in self.from_file_list:
             '''
@@ -400,48 +464,90 @@ class packageFile(cheakFile):
                             self.package(str(Ff),"unicorn.ico",v)
                             #print(Ff,"has been packaged.")
             report.append(FFL)
-        tkinter.messagebox.showinfo("showinfo", "完成")
+        if self.show_windows:
+            tkinter.messagebox.showinfo("showinfo", "完成")
+
         #"""
         print(self.from_dir_list,"\t",self.dir_list)
         from_dirList = ""
         dirList = ""
         if self.from_dir_list == []:
             from_dirList = from_file_path
-        
+            
         if self.dir_list == []:
             dirList = correspond_file_path
         
-        t2, rlock2, semaphore2 = "", "", ""
-        state = False
+        #t2, rlock2, semaphore2 = None, None, None
+        #t, rlock, semaphore = self.t, self.rlock, self.semaphore
+        c, i = 0, 0    
+        th, rl, sem = 0, 0, 0
         
+        try:
+            print(self.from_dir_list[tc])
+        except:
+            pass
+        try:
+            pass#print(self.dir_list[ti])
+        except:
+            pass
+        
+        state = False
         if not self.from_dir_list == []:
             state = True
             for from_dirList in self.from_dir_list:
-                print(from_dirList)
                 #from_dirList = from_dir_list
-                '''
+                if c < tc:
+                    continue
+                """
                 if not self.dir_list == []:
                     for dirList in self.dir_list:
                         #dir_list = dir_list
-                        print(from_dirList,dirList,"+"*10)
-                        '''
-                #"""
-                self.from_dir_list.remove(from_dirList)
+                        if i < ti:
+                            continue
+                            """
+                print(from_dirList,dirList,"+"*10)
                 time.sleep(0.005)
-                t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
-                rlock2 = threading.RLock()
-                semaphore2 = threading.Semaphore(1)
-                rlock2.acquire()
-                semaphore2.acquire()
+                self.t.append(
+                    threading.Thread(target = self.find_dir,args = [
+                            from_dirList,
+                            dirList,
+                            len(self.from_dir_list),
+                            len(self.dir_list)
+                        ]
+                    )
+                )
+                self.rlock.append(threading.RLock())
+                self.semaphore.append(threading.Semaphore(2))
+                th, rl, sem = len(self.t)-1, len(self.rlock)-1, len(self.semaphore)-1
+                self.rlock[rl].acquire()
+                self.semaphore[sem].acquire()
+                #self.t, self.rlock, self.semaphore = t, rlock, semaphore
                 # 執行該子執行緒
-                t2.start()
-            #"""
-            '''
+                self.t[th].start()
+                
+                """
+                        time.sleep(0.005)
+                        t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
+                        rlock2 = threading.RLock()
+                        semaphore2 = threading.Semaphore(2)
+                        rlock2.acquire()
+                        semaphore2.acquire()
+                        # 執行該子執行緒
+                        t2.start()
+                        """
+                """
+                        self.dir_list.remove(dirList)
+                        """
+                        #i += 1
+                """
+                self.from_dir_list.remove(from_dirList)
+                     
+                """
+                c += 1
         elif not self.dir_list == []:
             print("self.from_dir_list is ",self.from_dir_list)
-            '''
         else:
-            #print("self.from_dir_list&self.dir_list is ",self.from_dir_list,self.from_dir_list)
+            print("self.from_dir_list&self.dir_list is ",self.from_dir_list,self.from_dir_list)
             return report
         print(from_dirList,dirList)
         if from_dirList == "" or dirList == "":
@@ -476,14 +582,16 @@ class packageFile(cheakFile):
         semaphore1.release()
         # 等待 t2 這個子執行緒結束
         """
+        """
+        t2.join()
+        rlock2.release()
+        semaphore2.release()
+        
+        """
         if state:
-            t2.join()
-            rlock2.release()
-            semaphore2.release()
-        else:
-            del t2, rlock2, semaphore2
-        #"""
-        #"""
+            self.t[th].join()
+            self.rlock[rl].release()
+            self.semaphore[sem].release()
         
         self.report = []
         self.from_file_list = []
@@ -508,7 +616,7 @@ class packageFile(cheakFile):
     def package(self,fileName,icon = "unicorn",version = "0.0.0"):
         import os
         
-        file_name = fileName.replace("\\","/").split("/").pop()
+        file_name = fileName.split("/").pop()
         file_name.split(".").pop()
         
         i = 0
@@ -520,21 +628,29 @@ class packageFile(cheakFile):
                 i += 1
                 if not file_name is c:
                     i -= 1
-                print("i:",i)
+        print("i:",i)
         
         if not i == 1:
             return
         
         print(fileName,"has been packaged.")
         
-        args = '''\
-        --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
-        '''%(icon,version,os.path.abspath(fileName).replace("\\","/"))
-        
-        print(args)
-        
-        os.system("pyinstaller.exe " + args)
-        
+        try:
+            args = '''\
+            --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
+            '''%(icon,version,os.path.abspath(fileName).replace("\\","/"))
+            
+            print(args)
+            
+            os.system("pyinstaller.exe " + args)
+        except:
+            args = '''\
+            --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
+            '''%(icon,version,fileName)
+            
+            print(args)
+            
+            os.system("pyinstaller.exe " + args)
         cleanFile(file_name+".spec")
         replaceFile("dist",self.file_destination,self.show_windows).replace_file(file_name+".exe")
     def main(self):
