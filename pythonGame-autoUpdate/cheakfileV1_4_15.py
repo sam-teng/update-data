@@ -98,7 +98,7 @@ class cheakFile:
                         time.sleep(0.005)
                         t2 = threading.Thread(target = self.find_dir(from_dirList,dirList))
                         rlock2 = threading.RLock()
-                        semaphore2 = threading.Semaphore(1)
+                        semaphore2 = threading.Semaphore(2)
                         rlock2.acquire()
                         semaphore2.acquire()
                         # 執行該子執行緒
@@ -172,7 +172,7 @@ class cheakFile:
                 return None
         else:
             return None
-    def __init__(self,from_file_path,correspond_file_path,mode = "file"):
+    def __init__(self,from_file_path : str,correspond_file_path : str,mode = "file") -> str:
         """
         mode => "file" & "path" .
         return => "file" mode: string, "path" mode: list .
@@ -180,6 +180,23 @@ class cheakFile:
         """
         self.from_file_path,self.correspond_file_path = from_file_path,correspond_file_path
         self.mode = mode
+        
+        from_file_path = self.from_file_path
+        correspond_file_path = self.correspond_file_path
+        mode = self.mode
+        if str(mode) == "file":
+            r = self.setup(from_file_path,correspond_file_path)
+            if not r == None:
+               r = cheakFile(self)
+               return r
+        elif str(mode) == "path":
+            r = self.find_dir(from_file_path,correspond_file_path)
+            
+            report = ""
+            for rpt in r:
+                report += rpt +",\n"
+            
+            return report
     def main(self):
         """
         mode => "file" & "path" .
@@ -508,7 +525,7 @@ class packageFile(cheakFile):
     def package(self,fileName,icon = "unicorn",version = "0.0.0"):
         import os
         
-        file_name = fileName.replace("\\","/").split("/").pop()
+        file_name = fileName.split("/").pop()
         file_name.split(".").pop()
         
         i = 0
@@ -520,21 +537,29 @@ class packageFile(cheakFile):
                 i += 1
                 if not file_name is c:
                     i -= 1
-                print("i:",i)
+        print("i:",i)
         
         if not i == 1:
             return
         
         print(fileName,"has been packaged.")
         
-        args = '''\
-        --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
-        '''%(icon,version,os.path.abspath(fileName).replace("\\","/"))
-        
-        print(args)
-        
-        os.system("pyinstaller.exe " + args)
-        
+        try:
+            args = '''\
+            --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
+            '''%(icon,version,os.path.abspath(fileName).replace("\\","/"))
+            
+            print(args)
+            
+            os.system("pyinstaller.exe " + args)
+        except:
+            args = '''\
+            --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
+            '''%(icon,version,fileName)
+            
+            print(args)
+            
+            os.system("pyinstaller.exe " + args)
         cleanFile(file_name+".spec")
         replaceFile("dist",self.file_destination,self.show_windows).replace_file(file_name+".exe")
     def main(self):

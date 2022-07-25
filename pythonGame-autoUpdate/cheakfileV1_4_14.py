@@ -508,7 +508,7 @@ class packageFile(cheakFile):
     def package(self,fileName,icon = "unicorn",version = "0.0.0"):
         import os
         
-        file_name = fileName.replace("\\","/").split("/").pop()
+        file_name = fileName.split("/").pop()
         file_name.split(".").pop()
         
         i = 0
@@ -520,21 +520,29 @@ class packageFile(cheakFile):
                 i += 1
                 if not file_name is c:
                     i -= 1
-                print("i:",i)
+        print("i:",i)
         
         if not i == 1:
             return
         
         print(fileName,"has been packaged.")
         
-        args = '''\
-        --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
-        '''%(icon,version,os.path.abspath(fileName).replace("\\","/"))
-        
-        print(args)
-        
-        os.system("pyinstaller.exe " + args)
-        
+        try:
+            args = '''\
+            --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
+            '''%(icon,version,os.path.abspath(fileName).replace("\\","/"))
+            
+            print(args)
+            
+            os.system("pyinstaller.exe " + args)
+        except:
+            args = '''\
+            --noconfirm --onefile --windowed --icon \"%s\" --debug \"all\" --disable-windowed-traceback --osx-bundle-identifier \"%s\" --target-architecture \"x86_64,arm64,universal2\"  \"%s\"
+            '''%(icon,version,fileName)
+            
+            print(args)
+            
+            os.system("pyinstaller.exe " + args)
         cleanFile(file_name+".spec")
         replaceFile("dist",self.file_destination,self.show_windows).replace_file(file_name+".exe")
     def main(self):
