@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "0 2 * * 7"
+    - cron: '0 2 * * 7'
   pull_request:
     branches:
     - main
