@@ -27,7 +27,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [windows-latest, macOS-latest]
     # The type of runner that the job will run on - Ubuntu is required as Docker is leveraged for the action
     permissions:
       contents: read # for actions/checkout to fetch code
