@@ -49,7 +49,7 @@ jobs:
   Trigger-APIsec-scan:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [windows-latest, macOS-latest]
     permissions:
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     runs-on: ${{ matrix.os }}
