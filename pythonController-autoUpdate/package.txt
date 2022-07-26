@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onefile --windowed --icon "unicorn.ico" --debug "all" --disable-windowed-traceback --osx-bundle-identifier "0.0.0" --target-architecture "x86_64,arm64,universal2" "webDownloader-beta2.9.6.py"
