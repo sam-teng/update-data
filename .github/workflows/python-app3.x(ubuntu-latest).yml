@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main/pythonGame-autoUpdate" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main/pythonGame-autoUpdate" ]
 
 permissions:
   contents: read
