@@ -25,13 +25,16 @@ permissions:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
     # The type of runner that the job will run on - Ubuntu is required as Docker is leveraged for the action
     permissions:
       contents: read # for actions/checkout to fetch code
       issues: write # for checkmarx-ts/checkmarx-cxflow-github-action to write feedback to github issues
       pull-requests: write # for checkmarx-ts/checkmarx-cxflow-github-action to write feedback to PR
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     # Steps require - checkout code, run CxFlow Action, Upload SARIF report (optional)
     steps:
