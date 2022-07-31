@@ -1,6 +1,6 @@
 import os,site
 import time
-import wget,sys
+import sys
 #import urllib #urllib2.urlopen
 
 if sys.version_info >= (3, 0):
@@ -17,7 +17,7 @@ from tkinter import *
 from tkinter.ttk import *
 import tkinter.messagebox
 
-from cheakfileV1_5_2 import * #cheakFile,replaceFile
+from cheakfileV1_5_3 import * #cheakFile,replaceFile
 
 root = Tk()
 root.title("cheakUpdate")
@@ -133,7 +133,7 @@ def downloads():
     global i
     global lenght
     # ------
-    import zipfile #zipfile.ZipFile
+    #import zipfile #zipfile.ZipFile
     if fn == None:
         if len(list(data)) == 0:
             yt_urls = input("enter your file's full url")
@@ -142,7 +142,7 @@ def downloads():
             yt_urls = yt_urls.split(",")
         #i = 0
         yt_title = []
-        print("wget is on path %s" % (wget.__file__))
+        #print("wget is on path %s" % (wget.__file__))
         for yt_url in yt_urls:
 
             if yt_url == "":
@@ -200,9 +200,12 @@ def downloads():
                     print("file_size",file_size,"\n")
                 """
                     """ 
-                   ''' 
+                   '''
+                
+                test_file_name = str(i)#+".zip"
+                
                 pw = ""
-                with open("%d"%(i), 'wb') as file:
+                with open(test_file_name, 'wb') as file:
                     #th4.start()
                     pw = id(file)
                     file.write(response.content)
@@ -221,9 +224,11 @@ def downloads():
                 """
                 w = wget.download(url,out="\\"+str(i)+".zip")
                 """
+                import pyminizip
+                src = None # "..."
+                compression_level = 5 # 1‑9
+                pyminizip.compress(test_file_name, src, test_file_name, pw, compression_level)
                 from zipfile import ZipFile
-                
-                test_file_name = str(i)#+".zip"
                 
                 with ZipFile(test_file_name, 'a') as zip:
                     zip.setpassword(pw)
@@ -251,7 +256,7 @@ def downloads():
 
                 #exec(open("cheakfile.py").read())
                 
-            except InternetError as e:
+            except Exception as e:
                 print(e,"can't from " + yt_url + "\t download file")
                 tkinter.messagebox.showinfo("showinfo", "第"+str(i+1)+"項"+"更新失敗")
                 if i+1 == lenght:
@@ -267,9 +272,10 @@ def downloads():
     if not loading():
         downloads()
     else:
+        root.destroy()
         exit()
         pass
-        #root.destroy()
+        
 def state():
     global count
     if _bytes >= maxbytes:
@@ -301,7 +307,7 @@ def cheakstate():
         exit()
      
 def __init__():
-    t = [main(),state(),preview(),load(),downloads(),cheakstate()]
+    #t = [main(),state(),preview(),load(),downloads(),cheakstate()]
     """
     th = threading.Thread(target = preview())
     #th0 = threading.Thread(target = _exec())
