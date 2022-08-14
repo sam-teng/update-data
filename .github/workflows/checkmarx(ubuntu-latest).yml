@@ -9,10 +9,9 @@ name: CxFlow
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main/pythonGame-autoUpdate", "main/pythonController-autoUpdate" ]
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "main" ]
+    branches: [ "main/pythonGame-autoUpdate", "main/pythonController-autoUpdate" ]
   schedule:
     - cron: '0 5 * * 5'
   # Allows you to run this workflow manually from the Actions tab
