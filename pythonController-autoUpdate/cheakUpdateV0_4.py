@@ -1,6 +1,6 @@
 import os,site
 import time
-import wget,sys
+import sys
 #import urllib #urllib2.urlopen
 
 if sys.version_info >= (3, 0):
@@ -17,7 +17,7 @@ from tkinter import *
 from tkinter.ttk import *
 import tkinter.messagebox
 
-from cheakfileV1_5_1 import * #cheakFile,replaceFile
+from cheakfileV1_5_3 import * #cheakFile,replaceFile
 
 root = Tk()
 root.title("cheakUpdate")
@@ -60,13 +60,17 @@ def _exec():
         print(fr)
         exec(fr)
 def main():
+    """
     rl = threading.RLock()
     sem = threading.Semaphore(2)
     rl.acquire()
     sem.acquire()
+    """
     root.mainloop()
+    """
     rl.release()
     sem.release()
+    """
 
 pb = Progressbar(root,length=200,mode="determinate",orient=HORIZONTAL)#mode="indeterminate"
 pb.pack(padx=10,pady=10)
@@ -81,7 +85,10 @@ def load():                         # 啟動Prograssbar
     pb["value"] = 0                 # Prograssbar初始值
     pb["maximum"] = maxbytes        # Prograddbar最大值
     
-    loading()
+    t.append(threading.Thread(target = pb.after(50,loading)))
+                # 經過0.05秒繼續執行loading
+
+    #loading()
 
 def loading():                      # 模擬下載資料
     
@@ -93,15 +100,31 @@ def loading():                      # 模擬下載資料
         """
         pb["value"] = 0                 # Prograssbar初始值
         pb["maximum"] = maxbytes        # Prograddbar最大值
+    
+        t.append(threading.Thread(target = pb.after(50,loading)))
+                # 經過0.05秒繼續執行loading
+
         
     global _bytes
     
-    
-    if _bytes < maxbytes:
+    if maxbytes == 0 or lenght == 0:
+        _bytes += maxbytes   # 模擬每次下載500bytes
+        pb["value"] = _bytes              # 設定指針
+        """
+        if state == 0:
+            t.append(threading.Thread(target = pb.after(50,loading)))
+                # 經過0.05秒繼續執行loading
+        """
+        return False
+    elif _bytes < maxbytes:
         _bytes += maxbytes//lenght   # 模擬每次下載500bytes
         pb["value"] = _bytes              # 設定指針
+        """
+        if state == 0:
+            t.append(threading.Thread(target = pb.after(50,loading)))
+                # 經過0.05秒繼續執行loading
+        """
         return False
-        #pb.after(50,loading)        # 經過0.05秒繼續執行loading
     else:
         packageFile(mode="path").main()
         #cleanFile()
@@ -133,7 +156,7 @@ def downloads():
     global i
     global lenght
     # ------
-    import zipfile #zipfile.ZipFile
+    #import zipfile #zipfile.ZipFile
     if fn == None:
         if len(list(data)) == 0:
             yt_urls = input("enter your file's full url")
@@ -142,7 +165,7 @@ def downloads():
             yt_urls = yt_urls.split(",")
         #i = 0
         yt_title = []
-        print("wget is on path %s" % (wget.__file__))
+        #print("wget is on path %s" % (wget.__file__))
         for yt_url in yt_urls:
 
             if yt_url == "":
@@ -200,9 +223,12 @@ def downloads():
                     print("file_size",file_size,"\n")
                 """
                     """ 
-                   ''' 
+                   '''
+                
+                test_file_name = str(i)#+".zip"
+                
                 pw = ""
-                with open("%d"%(i), 'wb') as file:
+                with open(test_file_name, 'wb') as file:
                     #th4.start()
                     pw = id(file)
                     file.write(response.content)
@@ -221,17 +247,22 @@ def downloads():
                 """
                 w = wget.download(url,out="\\"+str(i)+".zip")
                 """
+                    
                 from zipfile import ZipFile
                 
-                test_file_name = str(i)#+".zip"
-                
-                with ZipFile(test_file_name, 'a') as zip:
-                    zip.setpassword(pw)
-                    zip.printdir()
+                try:
+                    import pyminizip
+                    src = None # "..."
+                    compression_level = 5 # 1‑9
+                    pyminizip.compress(test_file_name, src, test_file_name, pw, compression_level)
+                except:
+                    with ZipFile(test_file_name, 'a') as Zip:
+                        Zip.setpassword(pw)
+                        Zip.printdir()
 
-                with ZipFile(test_file_name, 'r') as zip:
-                    zip.printdir()
-                    zip.extractall("temp",pwd = pw) 
+                with ZipFile(test_file_name, 'r') as Zip:
+                    Zip.printdir()
+                    Zip.extractall("temp",pwd = pw) 
                 """
                 yt = YouTube(yt_url)#YouTube('https://www.youtube.com/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ')
                 print('strart downloads: ',yt.title)
@@ -251,7 +282,7 @@ def downloads():
 
                 #exec(open("cheakfile.py").read())
                 
-            except InternetError as e:
+            except Exception as e:
                 print(e,"can't from " + yt_url + "\t download file")
                 tkinter.messagebox.showinfo("showinfo", "第"+str(i+1)+"項"+"更新失敗")
                 if i+1 == lenght:
@@ -267,9 +298,10 @@ def downloads():
     if not loading():
         downloads()
     else:
+        root.destroy()
         exit()
         pass
-        #root.destroy()
+        
 def state():
     global count
     if _bytes >= maxbytes:
@@ -301,7 +333,7 @@ def cheakstate():
         exit()
      
 def __init__():
-    t = [main(),state(),preview(),load(),downloads(),cheakstate()]
+    #t = [main(),state(),preview(),load(),downloads(),cheakstate()]
     """
     th = threading.Thread(target = preview())
     #th0 = threading.Thread(target = _exec())
@@ -339,5 +371,8 @@ def __init__():
 
 tkinter.messagebox.showinfo("showinfo", "更新中請耐心等候")
 
-t = [state(),preview(),load(),downloads(),cheakstate(),main()]
-__init__()
+t = [state(),preview(),load(),downloads(),cheakstate()]#,main()]
+
+if __name__ == "__main__":
+    __init__()
+    main()
