@@ -1,12 +1,13 @@
 # -*- coding: UTF-8 -*-
 from tkinter import *
 from tkinter import messagebox
+import tkinter as tk
 
 import os
 import threading
 
-import run
-from run import main,setting
+import runV5 as run
+from runV5 import main,setting
 
 root = Tk()
 root.title("Mune")#ch16_8
@@ -24,7 +25,7 @@ def _cheakUpdate():
     
     from cheakUpdateV0_4 import __init__
     global E_count
-    fileName = "webDownloader-beta2.11.8"
+    fileName = "webDownloader-beta2.11.10"
     file_name = "webDoenloader-"
     #file_name.split(".").pop()
     
@@ -103,7 +104,7 @@ with open("webDownloader-beta2.6.py","rb") as fr:
 def __init__():
     t = []
     t.append(threading.Thread(target = __main__()))
-    t.append(threading.Thread(target = _cheakUpdate()))
+    #t.append(threading.Thread(target = _cheakUpdate()))
     
     for th in range(len(t)):
         try:
@@ -124,6 +125,22 @@ def _exit():
     root.destroy()
     run._exit()
     exit()
+    
+def game():
+    #super(main)
+    #os.system("runV4.exe")
+    #from runV5 import main
+    main()
+    #windowM = tk.Toplevel(run.main)
+    #windowM.mainloop()
+    
+def gameSetting():
+    #super(setting)
+    #os.system("runV4.exe")
+    #from runV5 import setting
+    setting()
+    #windowS = tk.Toplevel(run.window)
+    #windowS.mainloop()
 
 def __main__():
     menubar = Menu(root)                        # 建立最上層功能表
@@ -141,13 +158,13 @@ def __main__():
 
     gamemenu = Menu(menubar,tearoff=False)     # 取消分隔線
     menubar.add_cascade(label="Game",menu=gamemenu)
-    gamemenu.add_command(label="(selet) game_socket-2P-GUIv2.2",command=main)
+    gamemenu.add_command(label="(selet) game_socket-2P-GUIv2.2",command=game)
     #gamemenu.add_command(label="game_socket-client_2P-GUIv2.2",command=main)
     #gamemenu.add_command(label="game_socket-server_2P-GUIv2.2",command=main)
     
     settingmenu = Menu(menubar,tearoff=False)     # 取消分隔線
     menubar.add_cascade(label="Game Setting",menu=settingmenu)
-    settingmenu.add_command(label="Setting",command=setting,underline=0)
+    settingmenu.add_command(label="Setting",command=gameSetting,underline=0)
     
     # 下列是增加分隔線和建立Exit!指令
     filemenu.add_separator()
